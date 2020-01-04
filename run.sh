@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e 
-NOMAD_VERSION="v0.9.4"
+NOMAD_VERSION="v0.10.2"
 
 mkdir -p build
 

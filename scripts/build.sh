@@ -2,12 +2,25 @@
 
 set -e 
 
-apk add git bash linux-headers bash g++ make
-git clone -b $NOMAD_VERSION https://github.com/hashicorp/nomad.git /usr/local/go/src/github.com/hashicorp/nomad/
+apk add \
+    bash \
+    g++ \
+    git \
+    linux-headers \
+    musl-dev
 
-cd /usr/local/go/src/github.com/hashicorp/nomad
-make bootstrap
-make pkg/linux_amd64/nomad GO_TAGS="nonvidia"
+# Hashicorp Build
+mkdir -p src/github.com/hashicorp/nomad
+cd src/github.com/hashicorp/nomad || return 1
 
-./pkg/linux_amd64/nomad version
-mv ./pkg/linux_amd64/nomad /root/build/
+# Get source and apply any patches.
+git clone -b $NOMAD_VERSION https://github.com/hashicorp/nomad.git .
+
+echo "Building..."
+go build -x \
+    -o bin/nomad \
+    -tags "nonvidia release ui" \
+    --ldflags '-linkmode external -extldflags "-static"' \
+
+./bin/nomad version
+mv ./bin/nomad /root/build/
